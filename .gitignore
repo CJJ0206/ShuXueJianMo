@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+
+# 原始附件与派生数据体积大、且为赛方分发材料，不入库（需要共享走网盘/内网）
+data/raw/
+data/processed/
+
+# Office 临时锁文件
+~$*
+*.tmp
+
+# 环境与运行产物
+env.lock.local
+*.pid
