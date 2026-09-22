@@ -14,3 +14,9 @@ data/processed/
 # 环境与运行产物
 env.lock.local
 *.pid
+
+# 今晚压测的临时工作区，不入库
+数模作战包/dryrun/fixtures/
+__pycache__/
+*.pyc
+.pytest_cache/
