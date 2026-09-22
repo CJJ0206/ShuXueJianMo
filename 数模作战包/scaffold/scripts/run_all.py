@@ -1,8 +1,14 @@
 """V0-3 一键复现：依次跑 q*/src/main.py 再跑 q*/verify.py。
-用法：python run_all.py <root>"""
+用法：python run_all.py <root>
+
+中文 Windows 上 subprocess 的 text=True 会按 GBK 解码，子进程一打中文就崩
+（reader 线程抛 UnicodeDecodeError，stdout 变成 None）。故必须显式 encoding=utf-8，
+并对 None 兜底。"""
 import subprocess
 import sys
 from pathlib import Path
+
+ENC = dict(text=True, encoding="utf-8", errors="replace")
 
 
 def run(root: Path) -> list[tuple[str, int]]:
@@ -13,11 +19,15 @@ def run(root: Path) -> list[tuple[str, int]]:
             if not script.exists():
                 out.append((f"{q.name}/{script.name} 不存在", 1))
                 continue
-            r = subprocess.run([sys.executable, str(script)], cwd=q,
-                               capture_output=True, text=True, timeout=1800)
-            out.append((f"{q.name}/{script.name}", r.returncode))
-            if r.returncode:
-                print(r.stdout[-1500:], r.stderr[-1500:])
+            try:
+                r = subprocess.run([sys.executable, str(script)], cwd=q,
+                                   capture_output=True, timeout=1800, **ENC)
+                code, so, se = r.returncode, r.stdout, r.stderr
+            except subprocess.TimeoutExpired as e:
+                code, so, se = 124, e.stdout, e.stderr
+            out.append((f"{q.name}/{script.name}", code))
+            if code:
+                print((so or "")[-1500:], (se or "")[-1500:])
     return out
 
 

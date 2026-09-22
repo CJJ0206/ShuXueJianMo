@@ -24,17 +24,19 @@ def add(root: Path, value: str, unit: str, source: str, where: str, recompute: s
 
 
 def main(argv=None) -> int:
+    """退出码在 main() 内决定：0 成功、1 违反判据被拒、2 用法错误。
+    放在 __main__ 里会让直接调用 main() 的测试绕过异常处理。"""
     argv = argv if argv is not None else sys.argv
-    if len(argv) < 8:
+    if len(argv) < 7:                      # prog + root + 5 字段
         print(__doc__)
+        return 2
+    try:
+        print("已登记 " + add(Path(argv[1]), *argv[2:7]))
+        return 0
+    except Exception as e:
+        print(f"[ERROR] {e}")
         return 1
-    print("已登记 " + add(Path(argv[1]), *argv[2:8]))
-    return 0
 
 
 if __name__ == "__main__":
-    try:
-        sys.exit(main())
-    except Exception as e:
-        print(f"[ERROR] {e}")
-        sys.exit(1)
+    sys.exit(main())

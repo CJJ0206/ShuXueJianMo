@@ -15,9 +15,9 @@ def main(argv=None) -> int:
         tver = torch.__version__
     except Exception as e:
         gputxt, tver = f"torch 不可用: {e}", "?"
-    proc = subprocess.run([sys.executable, "-m", "pip", "freeze"],
-                          capture_output=True, text=True)
-    npk = proc.stdout.count("\n")
+    proc = subprocess.run([sys.executable, "-m", "pip", "freeze"], capture_output=True,
+                          text=True, encoding="utf-8", errors="replace")
+    npk = (proc.stdout or "").count("\n")
     lines = [f"python {sys.version.split()[0]} ({sys.executable})",
              platform.platform(),
              f"torch {tver}; GPU: {gputxt}",

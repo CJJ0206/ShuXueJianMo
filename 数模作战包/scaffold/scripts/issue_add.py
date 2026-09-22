@@ -24,17 +24,18 @@ def add(root: Path, loc, kind, impact, assume, verify, pri, repro, owner) -> str
 
 
 def main(argv=None) -> int:
+    """退出码在 main() 内决定：0 成功、1 违反判据被拒、2 用法错误。"""
     argv = argv if argv is not None else sys.argv
-    if len(argv) < 11:
+    if len(argv) < 10:                     # prog + root + 8 字段
         print(__doc__)
+        return 2
+    try:
+        print("已登记 " + add(Path(argv[1]), *argv[2:10]))
+        return 0
+    except Exception as e:
+        print(f"[ERROR] {e}")
         return 1
-    print("已登记 " + add(Path(argv[1]), *argv[2:10]))
-    return 0
 
 
 if __name__ == "__main__":
-    try:
-        sys.exit(main())
-    except Exception as e:
-        print(f"[ERROR] {e}")
-        sys.exit(1)
+    sys.exit(main())

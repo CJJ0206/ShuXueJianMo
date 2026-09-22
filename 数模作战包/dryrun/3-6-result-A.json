@@ -1,0 +1,20 @@
+{
+  "path": "detrend+FFT",
+  "src": "C:/Users/Administrator/Desktop/CUMCM2025Problems/B题/附件/附件1.xlsx",
+  "kbin": 5,
+  "res_per_cm": 0.0002777804707051188,
+  "freq_per_cm": 0.001388902353525594,
+  "thickness_um": 2.670966064472296,
+  "n_sic": 2.6,
+  "band_bins": [
+    2,
+    28
+  ],
+  "assumptions": [
+    "去 12 阶多项式包络",
+    "重采样等间隔",
+    "剔除首行0",
+    "单基频正弦"
+  ],
+  "ts": "2026-09-22 21:24:11"
+}
