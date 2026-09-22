@@ -54,6 +54,18 @@ def test_coldstart_打包四样输入(tmp_path):
     assert "题面正文示例" in text
 
 
+def test_coldstart_目录树不得为空(tmp_path):
+    """回归：曾因按名字排除 fixtures，当工作区自身在 fixtures 下时目录树被打成空的。
+    移交包少一样输入且完全静默，正好废掉 V0-1 这个判据。"""
+    root = tmp_path / "dryrun" / "fixtures" / "D题"
+    build(root, nq=2)
+    text = pack(root, problem_text="x")
+    seg = text.split("## 目录树", 1)[1].splitlines()
+    listed = [l for l in seg if l.strip() and l.strip().endswith((".md", ".py", ".txt"))]
+    assert len(listed) >= 8, f"目录树只剩 {len(listed)} 项，移交包欠一样输入"
+    assert any("q2/verify.py" in l for l in listed)
+
+
 def test_run_all_空壳verify返回非零(tmp_path):
     build(tmp_path, nq=1)
     res = run_all(tmp_path)

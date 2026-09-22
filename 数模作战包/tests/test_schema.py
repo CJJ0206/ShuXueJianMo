@@ -33,3 +33,20 @@ def test_前缀不匹配报错(tmp_path: Path):
     p.write_text("X01|1|mm|a.py|b|c|d\n", encoding="utf-8")
     with pytest.raises(ValueError, match="前缀应为 N"):
         parse(p)
+
+
+def test_字段内转义竖线不破坏切分(tmp_path: Path):
+    """明天一定会用到：Excel 表头名本身含竖线（如 "端点编号\\|端点坐标"）。"""
+    p = tmp_path / "SPEC.md"
+    p.write_text('C01|"端点编号\\|端点坐标\\|\\|x (m)"|双行表头|H|-|assert 列名解析|全部\n',
+                 encoding="utf-8")
+    eid, fields = parse(p)[0]
+    assert eid == "C01" and len(fields) == 6
+    assert fields[0] == '"端点编号|端点坐标||x (m)"', "转义应还原为字面竖线"
+
+
+def test_未转义竖线报错时给出可操作提示(tmp_path: Path):
+    p = tmp_path / "SPEC.md"
+    p.write_text('C01|"a|b"|c|H|-|d|q1\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="转义"):
+        parse(p)

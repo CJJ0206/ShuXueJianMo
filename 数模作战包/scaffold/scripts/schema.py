@@ -14,6 +14,12 @@ SCHEMAS = {
 FACT_FILES = ("SPEC.md", "assumptions.md", "numbers.md", "decisions.md", "issues.md", "handoff.md")
 HANDOFF_SECTIONS = ["当前状态", "已排除路线及原因", "最可疑三处", "下一步三条"]
 ID_RE = re.compile(r"^([A-Z])(\d{2,})\|(.*)$")
+# 字段内出现竖线是常态（表头名、区间、公式），故约定用 \| 转义，切分时只在未转义的竖线处切。
+UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
+
+
+def split_fields(rest: str) -> list[str]:
+    return [f.strip().replace("\\|", "|") for f in UNESCAPED_PIPE.split(rest)]
 
 
 def parse(path: Path) -> list[tuple[str, list[str]]]:
@@ -30,10 +36,11 @@ def parse(path: Path) -> list[tuple[str, list[str]]]:
         schema = SCHEMAS[path.name]
         if prefix != schema["prefix"]:
             raise ValueError(f"{path.name}:{lineno} ID 前缀应为 {schema['prefix']}，实为 {prefix}")
-        fields = [f.strip() for f in rest.split("|")]
+        fields = split_fields(rest)
         want = len(schema["fields"])
         if len(fields) != want:
-            raise ValueError(f"{path.name}:{lineno} 需 {want} 字段，实为 {len(fields)}")
+            raise ValueError(f"{path.name}:{lineno} 需 {want} 字段，实为 {len(fields)}"
+                             f"（字段内含竖线须写成反斜杠转义）")
         out.append((f"{prefix}{num}", fields))
     return out
 
